@@ -3,8 +3,10 @@
 
 package top.yukonga.miuix.kmp.basic
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -24,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
@@ -142,11 +146,14 @@ fun BasicComponent(
     val currentOnClick by rememberUpdatedState(onClick)
 
     HoldDownObserver(holdDownState, interactionSource)
+    val interactionPressed by interactionSource.collectIsPressedAsState()
+    val showPress = holdDownState || interactionPressed
 
     val clickableModifier = remember(enabled, onClick != null, interactionSource, role, onClickLabel) {
         if (enabled && onClick != null) {
             Modifier.clickable(
                 interactionSource = interactionSource,
+                indication = null,
                 onClickLabel = onClickLabel,
                 role = role,
                 onClick = { currentOnClick?.invoke() },
@@ -160,6 +167,11 @@ fun BasicComponent(
         modifier = modifier
             .heightIn(min = 56.dp)
             .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(
+                if (showPress) MiuixTheme.colorScheme.onBackground.copy(alpha = 0.09f)
+                else Color.Transparent
+            )
             .then(clickableModifier)
             .padding(insideMargin),
         verticalArrangement = Arrangement.Center,

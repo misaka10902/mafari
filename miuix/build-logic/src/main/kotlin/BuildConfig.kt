@@ -17,12 +17,20 @@ object BuildConfig {
 }
 
 fun org.gradle.api.Project.getGitVersionCode(): Int {
-    return providers.exec {
-        commandLine("git", "rev-list", "--count", "HEAD")
-    }.standardOutput.asText.get().trim().toInt()
+    // 源码压缩包不带 .git：没有仓库时直接回退，不要真的去调 git
+    // （git 失败会让 configuration cache 判定为构建问题，Gradle 9 会直接失败）
+    if (!rootProject.file(".git").exists()) return 1
+    return try {
+        providers.exec {
+            commandLine("git", "rev-list", "--count", "HEAD")
+        }.standardOutput.asText.get().trim().toInt()
+    } catch (_: Exception) {
+        1
+    }
 }
 
 fun org.gradle.api.Project.getGitHashShort(): String {
+    if (!rootProject.file(".git").exists()) return "local"
     return try {
         providers.exec {
             commandLine("git", "rev-parse", "--short", "HEAD")

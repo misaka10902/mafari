@@ -2,15 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
 
@@ -54,7 +52,7 @@
             android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.MiuixBrowser" />
 
-        <!-- 应用图标：同一时间只启用一个 alias，见 AppIconManager -->
+        <!-- 默认应用图标（唯一 LAUNCHER 入口） -->
         <activity-alias
             android:name=".IconDefault"
             android:enabled="true"
@@ -69,47 +67,8 @@
             </intent-filter>
         </activity-alias>
 
-        <activity-alias
-            android:name=".IconColorful"
-            android:enabled="false"
-            android:exported="true"
-            android:icon="@mipmap/ic_launcher_colorful"
-            android:roundIcon="@mipmap/ic_launcher_colorful"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
 
-        <activity-alias
-            android:name=".IconSolid"
-            android:enabled="false"
-            android:exported="true"
-            android:icon="@mipmap/ic_launcher_solid3d"
-            android:roundIcon="@mipmap/ic_launcher_solid3d"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
 
-        <activity-alias
-            android:name=".IconDark"
-            android:enabled="false"
-            android:exported="true"
-            android:icon="@mipmap/ic_launcher_dark"
-            android:roundIcon="@mipmap/ic_launcher_dark"
-            android:label="@string/app_name"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
 
         <!-- 网页 <input type=file capture> 备用输出路径 -->
         <provider
@@ -122,18 +81,6 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <receiver
-            android:name=".DownloadActionReceiver"
-            android:exported="false" />
-
-        <receiver
-            android:name=".GmNotificationReceiver"
-            android:exported="false" />
-
-        <service
-            android:name=".DownloadService"
-            android:exported="false"
-            android:foregroundServiceType="dataSync" />
     </application>
 
 </manifest>

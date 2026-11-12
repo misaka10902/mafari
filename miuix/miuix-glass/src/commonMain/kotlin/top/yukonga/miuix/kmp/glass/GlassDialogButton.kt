@@ -21,6 +21,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -79,6 +81,7 @@ fun GlassDialogButton(
     content: @Composable RowScope.() -> Unit,
 ) {
     val shape = remember(cornerRadius) { RoundedCornerShape(cornerRadius) }
+    val haptic = LocalHapticFeedback.current
     val indication = remember(pressedColor) { DialogButtonIndication(pressedColor) }
     val containerColor = if (enabled) colors.color else colors.disabledColor
     val contentColor = if (enabled) colors.contentColor else colors.disabledContentColor
@@ -92,7 +95,10 @@ fun GlassDialogButton(
                     indication = if (enabled) indication else null,
                     enabled = enabled,
                     role = Role.Button,
-                    onClick = onClick,
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onClick()
+                    },
                 )
                 .defaultMinSize(minWidth = minWidth, minHeight = minHeight)
                 .padding(insideMargin),

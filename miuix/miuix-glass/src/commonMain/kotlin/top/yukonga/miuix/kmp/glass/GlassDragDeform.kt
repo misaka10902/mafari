@@ -50,54 +50,6 @@ class GlassDragDeform(private val scope: CoroutineScope) {
 
     /** Gesture observer plus the deforming layer. Apply before the surface modifiers. */
     val layer: Modifier = Modifier
-        .pointerInput(Unit) {
-            val slop = viewConfiguration.touchSlop
-            awaitEachGesture {
-                val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Final)
-                var engaged = false
-                while (true) {
-                    val event = awaitPointerEvent(PointerEventPass.Final)
-                    val change = event.changes.firstOrNull { it.id == down.id } ?: break
-                    if (!change.pressed) break
-                    if (change.isConsumed) {
-                        if (engaged) break else continue
-                    }
-                    if (!engaged) {
-                        if ((change.position - down.position).getDistance() < slop) continue
-                        engaged = true
-                        begin(down.position)
-                    }
-                    scope.launch { position.snapTo(change.position) }
-                }
-                if (engaged) end()
-            }
-        }
-        .graphicsLayer {
-            val progress = press.value
-            val offset = position.value - start
-            if (progress == 0f && offset == Offset.Zero) return@graphicsLayer
-            val width = size.width
-            val height = size.height
-            if (width <= 0f || height <= 0f) return@graphicsLayer
-            // Panels are much larger than buttons, so the grow/stretch distance is larger than
-            // Kyant's 4dp to stay visible.
-            val grow = GROW_DP.dp.toPx()
-            val scale = lerp(1f, 1f + grow / height, progress)
-
-            val maxOffset = size.minDimension
-            val initialDerivative = 0.05f
-            translationX = maxOffset * tanh(initialDerivative * offset.x / maxOffset)
-            translationY = maxOffset * tanh(initialDerivative * offset.y / maxOffset)
-
-            val maxDragScale = grow / height
-            val offsetAngle = atan2(offset.y, offset.x)
-            scaleX = scale +
-                maxDragScale * abs(cos(offsetAngle) * offset.x / size.maxDimension) *
-                (width / height).coerceAtMost(1f)
-            scaleY = scale +
-                maxDragScale * abs(sin(offsetAngle) * offset.y / size.maxDimension) *
-                (height / width).coerceAtMost(1f)
-        }
 
     private fun begin(down: Offset) {
         start = down

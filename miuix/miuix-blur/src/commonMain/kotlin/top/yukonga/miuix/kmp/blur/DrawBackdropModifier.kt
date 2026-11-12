@@ -35,6 +35,7 @@ import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireGraphicsContext
@@ -171,6 +172,11 @@ private class DrawBackdropElement(
     override fun update(node: DrawBackdropNode) {
         val enabledChanged = node.enabled != enabled
         val gradientCleared = node.progressiveGradient != null && progressiveGradient == null
+        // The backdrop instance changing must trigger a redraw: the recorded draw commands still
+        // reference the *previous* backdrop's graphics layer, and the node does not auto-invalidate.
+        // Without this the surface keeps showing the old (e.g. plain colour) backdrop until some
+        // unrelated state change happens to redraw it.
+        val backdropChanged = node.backdrop !== backdrop
         node.backdrop = backdrop
         node.updateShape(shape)
         node.effects = effects
@@ -191,6 +197,12 @@ private class DrawBackdropElement(
                 node.releaseGraphicsLayers()
             }
             node.invalidateMeasurement()
+        }
+        if (backdropChanged) {
+            // Deferred: the new backdrop's layer is recorded in the same frame, so redrawing
+            // immediately would still sample stale content. invalidateDraw() is enough — the
+            // draw phase runs after all layers in the tree have been recorded.
+            node.invalidateDraw()
         }
         node.invalidateDrawCache()
     }

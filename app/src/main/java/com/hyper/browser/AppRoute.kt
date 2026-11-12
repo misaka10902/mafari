@@ -1,0 +1,28 @@
+package com.hyper.browser
+
+import top.yukonga.miuix.kmp.nav.core.NavKey
+
+/**
+ * 应用级路由（miuix-nav 官方 NavDisplay 的返回栈元素）。
+ *
+ * 栈底永远是 [Browser]（浏览主界面）；设置、扩展、书签/历史作为页面压栈。
+ * 预见性返回的跟手、提交/取消回弹、下层视差与遮罩全部由 NavDisplay 负责，应用不再自绘。
+ * 栈是纯内存栈（navBackStackOf），所以这里不需要 @Serializable。
+ */
+sealed interface AppRoute : NavKey {
+    data object Browser : AppRoute
+    data object Settings : AppRoute
+    data object Extensions : AppRoute
+
+    /** 设置 → 高级 → 去广告 */
+    data object AdBlockPage : AppRoute
+
+    /** 设置 → 隐私与安全 → 指纹保护 */
+    data object FingerprintPage : AppRoute
+
+    /** 设置 → 隐私与安全 → Cookie 管理 */
+    data object CookiePage : AppRoute
+
+    /** 书签 / 历史库。[tab] 0 = 书签，1 = 历史。 */
+    data class Library(val tab: Int) : AppRoute
+}
